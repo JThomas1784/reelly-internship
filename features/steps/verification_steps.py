@@ -9,12 +9,12 @@ def step_open_main_page(context):
 
 @when("the user logs in with valid credentials")
 def step_user_logs_in(context):
-    context.main_page.login("jamonte.thomas17@gmail.com", "9#p9PW6bLVCF8gt")
+    context.application.main_page.login("jamonte.thomas17@gmail.com", "9#p9PW6bLVCF8gt")
 
 @when('the user clicks on "settings" in the left menu')
 def step_user_clicks_settings(context):
     context.settings_page = SettingsPage(context.driver)
-    context.settings_page.open_settings()
+    context.application.settings_page.open_settings()
 
 @when('the user clicks on the "verification" option')
 def step_user_clicks_verification(context):
