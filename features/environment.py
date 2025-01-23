@@ -36,39 +36,41 @@
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import pytest
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
 # BrowserStack credentials
-username = "jamontethomas_KpvXqZ"
-access_key = "tqCSbysrv3uquAuKCHVY"
+BROWSERSTACK_USERNAME = "jamontethomas_KpvXqZ"
+BROWSERSTACK_ACCESS_KEY = "tqCSbysrv3uquAuKCHVY"
 
-desired_cap = {
-'browser': 'Chrome',
-'browser_version': 'latest',
-'os': 'Windows',
-'os_version': '10',
-'name': 'Python Selenium BrowserStack Test'
-}
+def get_browserstack_capabilities():
+    return {
+        "bstack:options": {
+            "os": "Windows",
+            "osVersion": "10",
+            "local": "false",
+            "seleniumVersion": "4.8.0",
+            "userName": BROWSERSTACK_USERNAME,
+            "accessKey": BROWSERSTACK_ACCESS_KEY
+        },
+        "browserName": "Chrome",
+        "browserVersion": "latest"
+    }
 
-url = f"https://{username}:{access_key}@hub-cloud.browserstack.com/wd/hub"
 
-@pytest.fixture(scope="function")
-defdriver():
-    driver = webdriver.Remote(
-        command_executor=url,
-        desired_capabilities=desired_cap
-)
-yield driver
-    driver.quit()
+def before_scenario(context, scenario):
+    options = Options()
+    capabilities = get_browserstack_capabilities()
+    for key, value in capabilities.items():
+        options.set_capability(key, value)
 
-deftest_browserstack(driver):
-    driver.get("https://www.browserstack.com")
+    context.driver = webdriver.Remote(
+        command_executor=f"https://{BROWSERSTACK_USERNAME}:{BROWSERSTACK_ACCESS_KEY}@hub-cloud.browserstack.com/wd/hub",
+        options=options
+    )
+    context.driver.maximize_window()
 
-assert"BrowserStack"in driver.title
-    search_box = driver.find_element(By.NAME, "q")
-    search_box.send_keys("Selenium Python")
-    search_box.send_keys(Keys.RETURN)
 
-assert"Selenium"in driver.page_source
+def after_scenario(context, scenario):
+        if context.driver:
+            context.driver.quit()
