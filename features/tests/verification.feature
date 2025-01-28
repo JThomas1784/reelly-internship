@@ -1,4 +1,5 @@
 # Created by jamontethomas at 1/18/25
+@allure
 Feature: Verification Settings
 
   Scenario: User can click on verification settings option and verify the right page opens

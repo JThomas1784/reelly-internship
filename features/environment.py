@@ -1,76 +1,95 @@
-# from app.application import Application
-# from selenium import webdriver
-# from selenium.webdriver.chrome.options import Options
-
-
-# def before_all(context):
-#     chrome_options = Options()
-#     chrome_options.add_argument("--headless")
-#     chrome_options.add_argument("--disable-gpu")
-#     chrome_options.add_argument("--window-size=1920,1080")
-#     chrome_options.add_argument("--no-sandbox")
-#     chrome_options.add_argument("--disable-dev-shm-usage")
-#
-#     context.driver = webdriver.Chrome(options=chrome_options)
-#     context.driver.maximize_window()
-#     print(f"Running in headless mode: {chrome_options.arguments}")
-#
-#     context.application = Application(context.driver)
-#
-# def after_all(context):
-#     context.driver.quit()
-
-# from selenium import webdriver
-# from selenium.webdriver.firefox.options import Options
-#
-# def before_all(context):
-#     firefox_options = Options()
-#     firefox_options.add_argument("--headless")
-#     firefox_options.add_argument("--window-size=1920,1080")
-#
-#     context.driver = webdriver.Firefox(options=firefox_options)
-#     context.driver.maximize_window()
-#
-# def after_all(context):
-#     context.driver.quit()
-
+import os
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from browserstack.local import Local
 
-# BrowserStack credentials
-BROWSERSTACK_USERNAME = "jamontethomas_KpvXqZ"
-BROWSERSTACK_ACCESS_KEY = "tqCSbysrv3uquAuKCHVY"
+bs_local = None
 
-def get_browserstack_capabilities():
-    return {
-        "bstack:options": {
-            "os": "Windows",
-            "osVersion": "10",
-            "local": "false",
-            "seleniumVersion": "4.8.0",
-            "userName": BROWSERSTACK_USERNAME,
-            "accessKey": BROWSERSTACK_ACCESS_KEY
-        },
-        "browserName": "Chrome",
-        "browserVersion": "latest"
-    }
+
+def before_all(context):
+    """
+    Setup steps to be executed before all scenarios.
+    This includes initializing BrowserStack, Allure, and Selenium configurations.
+    """
+    global bs_local
+
+
+    allure_environment_path = os.path.join(os.getcwd(), "allure_reports", "environment.properties")
+    os.makedirs(os.path.dirname(allure_environment_path), exist_ok=True)
+    with open(allure_environment_path, "w") as env_file:
+        env_file.write("Browser=Chrome\n")
+        env_file.write("Device=Nexus 5\n")
+        env_file.write("Platform=Local\n")
+
+
+    if os.getenv("USE_BROWSERSTACK", "false").lower() == "true":
+
+        desired_cap = {
+            'os': os.getenv("BROWSERSTACK_OS", "Windows"),
+            'os_version': os.getenv("BROWSERSTACK_OS_VERSION", "10"),
+            'browser': os.getenv("BROWSERSTACK_BROWSER", "Chrome"),
+            'browser_version': os.getenv("BROWSERSTACK_BROWSER_VERSION", "latest"),
+            'name': 'BStack-[Behave] Test',
+            'browserstack.local': os.getenv("BROWSERSTACK_LOCAL", "false").lower(),
+            'browserstack.debug': 'true',
+            'browserstack.video': 'true'
+        }
+
+
+        if desired_cap['browserstack.local'] == "true":
+            bs_local = Local()
+            bs_local_args = {"key": os.getenv("BROWSERSTACK_ACCESS_KEY")}
+            bs_local.start(**bs_local_args)
+
+
+        context.driver = webdriver.Remote(
+            command_executor=f"http://{os.getenv('BROWSERSTACK_USERNAME')}:{os.getenv('BROWSERSTACK_ACCESS_KEY')}@hub.browserstack.com/wd/hub",
+            desired_capabilities=desired_cap
+        )
+        print("Running tests on BrowserStack...")
+
+    else:
+
+        mobile_emulation = {"deviceName": os.getenv("MOBILE_DEVICE", "Nexus 5")}
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+
+
+        context.driver = webdriver.Chrome(options=chrome_options)
+        print("Running tests locally with mobile emulation...")
 
 
 def before_scenario(context, scenario):
-    options = Options()
-    capabilities = get_browserstack_capabilities()
-    for key, value in capabilities.items():
-        options.set_capability(key, value)
-
-    context.driver = webdriver.Remote(
-        command_executor=f"https://{BROWSERSTACK_USERNAME}:{BROWSERSTACK_ACCESS_KEY}@hub-cloud.browserstack.com/wd/hub",
-        options=options
-    )
-    context.driver.maximize_window()
+    """
+    Actions to perform before each scenario.
+    Custom driver configurations based on scenario tags.
+    """
+    if "mobile" in scenario.tags:
+        print(f"Mobile emulation enabled for scenario: {scenario.name}")
+    else:
+        print(f"Running scenario: {scenario.name}")
 
 
 def after_scenario(context, scenario):
-        if context.driver:
-            context.driver.quit()
+    """
+    Tear down after each scenario.
+    Capture screenshots for failed scenarios and attach to Allure reports.
+    """
+    if scenario.status == "failed":
+        screenshot_path = f"screenshots/{scenario.name.replace(' ', '_')}.png"
+        context.driver.save_screenshot(screenshot_path)
+        print(f"Screenshot saved to: {screenshot_path}")
+
+
+def after_all(context):
+    """
+    Tear down steps to be executed after all scenarios.
+    Close WebDriver and stop BrowserStack Local.
+    """
+    if context.driver:
+        context.driver.quit()
+        print("WebDriver closed.")
+
+    global bs_local
+    if bs_local and bs_local.isRunning():
+        bs_local.stop()
+        print("BrowserStack Local stopped.")

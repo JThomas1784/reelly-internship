@@ -1,0 +1,34 @@
+<testsuite name="tests.verification.Verification Settings" tests="1" errors="1" failures="0" skipped="0" time="1.822381" timestamp="2025-01-27T20:02:27.378107" hostname="Jamontes-MacBook-Pro.local"><testcase classname="tests.verification.Verification Settings" name="User can click on verification settings option and verify the right page opens" status="failed" time="1.822381"><error type="AttributeError" message="'Context' object has no attribute 'application'">
+<![CDATA[
+Failing step: When the user logs in with valid credentials ... failed in 0.002s
+Location: features/tests/verification.feature:7
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/behave/model.py", line 1329, in run
+    match.run(runner.context)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/behave/matchers.py", line 98, in run
+    self.func(context, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/allure_commons/_allure.py", line 192, in impl
+    return func(*a, **kw)
+           ^^^^^^^^^^^^^^
+  File "features/steps/verification_steps.py", line 16, in step_user_logs_in
+    context.application.main_page.login("jamonte.thomas17@gmail.com", "9#p9PW6bLVCF8gt")
+    ^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/behave/runner.py", line 321, in __getattr__
+    raise AttributeError(msg)
+AttributeError: 'Context' object has no attribute 'application'
+]]>
+</error><system-out>
+<![CDATA[
+@scenario.begin
+  Scenario: User can click on verification settings option and verify the right page opens
+    Given the user is on the main page ... passed in 1.821s
+    When the user logs in with valid credentials ... failed in 0.002s
+    And the user clicks on "settings" in the left menu ... skipped in 0.000s
+    And the user clicks on the "verification" option ... skipped in 0.000s
+    Then the verification page should open ... skipped in 0.000s
+    And "upload image" and "Next step" buttons should be available ... skipped in 0.000s
+
+@scenario.end
+--------------------------------------------------------------------------------
+]]>
+</system-out></testcase></testsuite>
