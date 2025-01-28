@@ -1,7 +1,7 @@
-<testsuite name="tests.verification.Verification Settings" tests="1" errors="1" failures="0" skipped="0" time="1.822381" timestamp="2025-01-27T20:02:27.378107" hostname="Jamontes-MacBook-Pro.local"><testcase classname="tests.verification.Verification Settings" name="User can click on verification settings option and verify the right page opens" status="failed" time="1.822381"><error type="AttributeError" message="'Context' object has no attribute 'application'">
+<testsuite name="tests.verification.Verification Settings" tests="1" errors="1" failures="0" skipped="0" time="1.612283" timestamp="2025-01-28T00:49:57.912025" hostname="Jamontes-MacBook-Pro.local"><testcase classname="tests.verification.Verification Settings" name="User can click on verification settings option and verify the right page opens" status="failed" time="1.612283"><error type="AttributeError" message="'Context' object has no attribute 'application'">
 <![CDATA[
-Failing step: When the user logs in with valid credentials ... failed in 0.002s
-Location: features/tests/verification.feature:7
+Failing step: When the user logs in with valid credentials ... failed in 0.003s
+Location: features/tests/verification.feature:9
 Traceback (most recent call last):
   File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/behave/model.py", line 1329, in run
     match.run(runner.context)
@@ -20,9 +20,11 @@ AttributeError: 'Context' object has no attribute 'application'
 </error><system-out>
 <![CDATA[
 @scenario.begin
+
+  @allure @mobile
   Scenario: User can click on verification settings option and verify the right page opens
-    Given the user is on the main page ... passed in 1.821s
-    When the user logs in with valid credentials ... failed in 0.002s
+    Given the user is on the main page ... passed in 1.610s
+    When the user logs in with valid credentials ... failed in 0.003s
     And the user clicks on "settings" in the left menu ... skipped in 0.000s
     And the user clicks on the "verification" option ... skipped in 0.000s
     Then the verification page should open ... skipped in 0.000s

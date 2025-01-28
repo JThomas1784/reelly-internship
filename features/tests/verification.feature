@@ -1,7 +1,9 @@
 # Created by jamontethomas at 1/18/25
-@allure
+
 Feature: Verification Settings
 
+  @allure
+  @mobile
   Scenario: User can click on verification settings option and verify the right page opens
     Given the user is on the main page
     When the user logs in with valid credentials

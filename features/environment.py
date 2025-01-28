@@ -49,7 +49,7 @@ def before_all(context):
 
     else:
 
-        mobile_emulation = {"deviceName": os.getenv("MOBILE_DEVICE", "Nexus 5")}
+        mobile_emulation = {"deviceName": os.getenv("MOBILE_DEVICE", "Pixel 2")}
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
 
